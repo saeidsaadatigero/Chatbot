@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>هوش مصنوعی هاگینگ فیس</title>
+    <!-- لینک به CSS بوت استرپ -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f8f9fa; }
+        #chatbox { height: 400px; border: 1px solid #ccc; padding: 10px; overflow-y: scroll; background-color: white; }
+        .user { color: blue; }
+        .ai { color: green; }
+    </style>
+</head>
+<body>
+
+<div class="container mt-5">
+    <h2 class="text-center"> چت با هوش مصنوعی Chat With gpt-neo </h2>
+    <div id="chatbox" class="mb-3 p-3"></div>
+    <div class="input-group mb-3">
+        <input type="text" id="userInput" class="form-control" placeholder="پیام خود را وارد کنید..." aria-label="Message">
+        <div class="input-group-append">
+            <button id="sendButton" class="btn btn-primary">ارسال</button>
+        </div>
+    </div>
+</div>
+
+<!-- لینک به JS بوت استرپ و JQuery -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.7/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+    const chatbox = document.getElementById("chatbox");
+    const userInput = document.getElementById("userInput");
+    const sendButton = document.getElementById("sendButton");
+
+    function appendMessage(sender, message) {
+        const messageElement = document.createElement("div");
+        messageElement.className = sender + " mb-1";
+        messageElement.textContent = message;
+        chatbox.appendChild(messageElement);
+        chatbox.scrollTop = chatbox.scrollHeight;
+    }
+
+    // دریافت توکن CSRF از کوکی
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    const csrftoken = getCookie('csrftoken');
+
+    sendButton.onclick = function() {
+        const message = userInput.value;
+        if (message.trim()) {
+            appendMessage("user", "شما: " + message);
+            userInput.value = "";
+
+            fetch("/api/chat/", {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
+                },
+                body: JSON.stringify({ "message": message }) // ارسال داده به صورت JSON
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.response) {
+                    appendMessage("ai", "AI: " + data.response);
+                } else {
+                    appendMessage("ai", "خطا در ارتباط با سرور.");
+                }
+            })
+            .catch(error => {
+                appendMessage("ai", "خطا در ارتباط با سرور.");
+            });
+        }
+    };
+    
+</script>
+</body>
+</html>
