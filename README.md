@@ -1,5 +1,7 @@
 # 🤖 Chatbot Using Hugging Face API
 
+![Screenshot from 2024-10-28 21-44-41](https://github.com/user-attachments/assets/294805cc-b50f-4bc8-8339-fb6ea98dab46)
+
 This project implements a chatbot using the Hugging Face API, specifically designed to leverage natural language processing capabilities. The chatbot interacts with users in both English and Persian, providing intelligent responses while avoiding repetitive phrases.
 
 ## 🌟 Features
