@@ -4,23 +4,22 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
 
-HUGGING_FACE_API_KEY = "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"  # توکن هاگینگ فیس خود را اینجا قرار دهید
+HUGGING_FACE_API_KEY = "Put API Token from HuggingFace"
 
 @csrf_exempt
 def chat_response(request):
     if request.method == "POST":
         try:
-            body = json.loads(request.body)  # بارگذاری داده‌های JSON
-            user_input = body.get("message", "").strip()  # دریافت ورودی کاربر
+            body = json.loads(request.body)  # Load JSON data
+            user_input = body.get("message", "").strip()  # Get user input
         except json.JSONDecodeError:
-            return JsonResponse({"response": "داده‌های دریافتی نامعتبر است."})
+            return JsonResponse({"response": "Invalid data received."})
 
-        # بررسی اینکه ورودی کاربر خالی نباشد
+        # Check that user input is not empty
         if not user_input:
-            return JsonResponse({"response": "لطفاً پیامی وارد کنید."})
+            return JsonResponse({"response": "Please enter a message."})
 
-
-        # تنظیم هدرها و پارامترهای درخواست
+        # Set request headers and parameters
         headers = {
             "Authorization": f"Bearer {HUGGING_FACE_API_KEY}"
         }
@@ -28,53 +27,37 @@ def chat_response(request):
         payload = {
             "inputs": user_input,
             "parameters": {
-                "temperature": 0.2,  # تنظیم دما برای کنترل تصادفی بودن پاسخ
-                "max_length": 100,   # حداکثر تعداد توکن‌ها
-                "top_k": 40,         # محدود کردن جستجوی کلمات به بهترین گزینه‌ها
-                "top_p": 0.9        # کنترل روی احتمال توزیع کلمات
+                "temperature": 0.2,  # Set temperature to control response randomness
+                "max_length": 100,   # Maximum token count
+                "top_k": 40,         # Limit search to top options
+                "top_p": 0.9         # Control probability distribution for words
             }
         }
 ################################################################
-        # # استفاده از مدل GPT-3.5
+        # # Using GPT-3.5 model
         # response = requests.post("https://api-inference.huggingface.co/models/gpt-3.5-turbo",
         #                          headers=headers, json=payload)
 
-
-        # استفاده از مدل gpt-neo
+        # Using gpt-neo model
         response = requests.post("https://api-inference.huggingface.co/models/EleutherAI/gpt-neo-2.7B",
                                  headers=headers, json=payload)
 
-        # # استفاده از مدل gpt-j
-        # response = requests.post("https://api-inference.huggingface.co/models/EleutherAI/gpt-j-6B", headers=headers,
-        #                          json=payload)
+        # # Using gpt-j model
+        # response = requests.post("https://api-inference.huggingface.co/models/EleutherAI/gpt-j-6B",
+        #                          headers=headers, json=payload)
         #
-        # # استفاده از مدل gpt-2
-        # response = requests.post("https://api-inference.huggingface.co/models/gpt2", headers=headers, json=payload)
+        # # Using gpt-2 model
+        # response = requests.post("https://api-inference.huggingface.co/models/gpt2",
+        #                          headers=headers, json=payload)
 
 ################################################################
 
-
-#         # بررسی پاسخ API و پردازش آن
-#         if response.status_code == 200:
-#             model_output = response.json()[0].get("generated_text", "پاسخی از مدل دریافت نشد.")
-#         else:
-#             model_output = f"خطا: {response.status_code} - {response.text}"
-#             model_output = remove_repeated_phrases(model_output)  # حذف عبارات تکراری
-#
-#
-#         return JsonResponse({"response": model_output})
-#
-#     return JsonResponse({"error": "Invalid request"}, status=400)
-#
-# def index(request):
-#     return render(request, 'chat/index.html')
-
-        # بررسی پاسخ API و پردازش آن
+        # Check API response and process it
         if response.status_code == 200:
-            model_output = response.json()[0].get("generated_text", "پاسخی از مدل دریافت نشد.")
-            model_output = remove_repeated_phrases(model_output)  # حذف عبارات تکراری
+            model_output = response.json()[0].get("generated_text", "No response received from model.")
+            model_output = remove_repeated_phrases(model_output)  # Remove repeated phrases
         else:
-            model_output = f"خطا: {response.status_code} - {response.text}"
+            model_output = f"Error: {response.status_code} - {response.text}"
 
         return JsonResponse({"response": model_output})
 
