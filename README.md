@@ -1,4 +1,5 @@
 # 🤖 Chatbot Using Hugging Face API
+# 🤖 Chatbot Using Gemini API
 
 ![Screenshot from 2024-10-28 21-44-41](https://github.com/user-attachments/assets/294805cc-b50f-4bc8-8339-fb6ea98dab46)
 ![ChatBot](https://github.com/user-attachments/assets/1a79a38f-a8ab-44c1-8ef2-28c945814acf)
